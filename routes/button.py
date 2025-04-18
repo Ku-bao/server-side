@@ -35,12 +35,12 @@ def handle_button():
             headDownDown()
 
         elif button_id == "button_left":
-            logger.info("左转")
-            chassis.set_velocity(0,90,-0.3)
+            logger.info("左转" if action else "停止左转")
+            chassis.set_velocity(0,90,-0.3) if action else chassis.set_velocity(0, 0, 0)
 
         elif button_id == "button_right":
-            logger.info("右转")
-            chassis.set_velocity(0,90,0.3)
+            logger.info("右转" if action else "停止右转")
+            chassis.set_velocity(0,90,0.3) if action else chassis.set_velocity(0, 0, 0)
 
         elif button_id == "button_grasp":
             logger.info("执行抓取操作")
@@ -49,10 +49,8 @@ def handle_button():
         elif button_id == "detect":
             logger.info(f"{'开启' if action else '关闭'}识别")
 
-
         elif button_id == "auto_grasp":
             logger.info(f"{'开启' if action else '关闭'}自动识别抓取")
-
 
         else:
             logger.warning(f"未知按钮 ID: {button_id}")
