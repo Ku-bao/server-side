@@ -1,8 +1,8 @@
 import cv2
 import threading
 import time
-import subprocess
-import os
+from ultralytics import YOLO
+
 class CameraStream:
     _instance = None
     _lock = threading.Lock()
@@ -18,20 +18,19 @@ class CameraStream:
 
     def __init_once(self):
         print("[CameraStream] 初始化摄像头")
-        print("[CameraStream] 检查摄像头是否被占用...")
-        res = subprocess.getoutput("lsof /dev/video0")
-        print(res or "没有其他进程占用 /dev/video0")
-
         self.capture = None
         self.running = False
         self.lock = threading.Lock()
         self.read_thread = None
         self.latest_frame = None
+        self.model = YOLO("best_openvino_model")  
         self.start()
 
-    def _reader(self):
+    def _reader(self, detect: bool):
         print("[CameraStream] 读取线程已启动")
         failure_count = 0
+        prev_time = 0  
+
         while self.running and self.capture and self.capture.isOpened():
             ret, frame = self.capture.read()
             if not ret:
@@ -45,12 +44,26 @@ class CameraStream:
                 continue
 
             failure_count = 0
-            _, buffer = cv2.imencode('.jpg', frame)
+
+            current_time = cv2.getTickCount()
+            time_diff = (current_time - prev_time) / cv2.getTickFrequency()
+            fps = 1 / time_diff if time_diff > 0 else 0
+            prev_time = current_time
+
+            if detect:
+                results = self.model(frame, conf=0.65)  
+                annotated_frame = results[0].plot()  
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                cv2.putText(annotated_frame, f"FPS: {fps:.2f}", (10, 30), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+            else:
+                annotated_frame = frame 
+
+            _, buffer = cv2.imencode('.jpg', annotated_frame)
             self.latest_frame = buffer.tobytes()
 
         print("[CameraStream] 读取线程结束")
 
-    def start(self):
+    def start(self, detect: bool):
         with self.lock:
             if not self.running:
                 print("[CameraStream] 启动摄像头")
@@ -60,7 +73,7 @@ class CameraStream:
                 if not self.capture.isOpened():
                     print("[CameraStream] 摄像头打开失败")
                 self.running = True
-                self.read_thread = threading.Thread(target=self._reader, daemon=True)
+                self.read_thread = threading.Thread(target=self._reader, args=(detect,), daemon=True)
                 self.read_thread.start()
 
     def stop(self):

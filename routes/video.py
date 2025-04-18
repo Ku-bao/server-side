@@ -14,7 +14,7 @@ client_lock = threading.Lock()
 def video_feed():
     global active_clients
     try:
-        camera.start()
+        camera.start(False)
         client_ip = request.remote_addr
         with client_lock:
             active_clients += 1
@@ -23,7 +23,7 @@ def video_feed():
         def generate():
             global active_clients  
             try:
-                for frame in camera.frames():
+                for frame in camera.frames():  # 不做YOLO检测
                     yield frame
             except GeneratorExit:
                 print(f"[/video] 客户端 {client_ip} 断开连接")
@@ -31,6 +31,33 @@ def video_feed():
                 with client_lock:
                     active_clients -= 1
                 print(f"[/video] 当前剩余连接数: {active_clients}")
+
+        return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    except Exception as e:
+        logger.exception("视频开启失败")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@video_bp.route("/detection_video")
+def detection_video_feed():
+    global active_clients
+    try:
+        camera.start(True)
+        client_ip = request.remote_addr
+        with client_lock:
+            active_clients += 1
+        print(f"[/detection_video] 收到来自 {client_ip} 的请求，当前连接数: {active_clients}")
+
+        def generate():
+            global active_clients  
+            try:
+                for frame in camera.frames():  
+                    yield frame
+            except GeneratorExit:
+                print(f"[/detection_video] 客户端 {client_ip} 断开连接")
+            finally:
+                with client_lock:
+                    active_clients -= 1
+                print(f"[/detection_video] 当前剩余连接数: {active_clients}")
 
         return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
     except Exception as e:
