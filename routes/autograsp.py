@@ -9,7 +9,7 @@ from common.ros_robot_controller_sdk import Board
 import common.yaml_handle as yaml_handle
 
 
-connect_bp = Blueprint('autograsp', __name__)
+autograsp_bp = Blueprint('autograsp', __name__)
 logger = logging.getLogger(__name__)
 
 board = Board()
@@ -19,7 +19,7 @@ chassis = mecanum.MecanumChassis()
 AK = ArmIK()
 AK.board = Board()
 
-@connect_bp.route('/autoGrasp', methods=['POST'])
+@autograsp_bp_.route('/autoGrasp', methods=['POST'])
 def auto_move():
     try:
         data = request.get_json()

@@ -23,6 +23,8 @@ app.register_blueprint(control_bp)
 app.register_blueprint(button_bp)
 app.register_blueprint(video_bp)
 app.register_blueprint(connect_bp)
+app.register_blueprint(autograsp_bp)
+app.register_blueprint(avoidacne_bp)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3160, debug=True ,use_reloader=False)
