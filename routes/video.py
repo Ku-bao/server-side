@@ -64,7 +64,7 @@ def detection_video_feed():
         logger.exception("视频开启失败")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-@video_bp.route("/stopvideo")
+@video_bp.route("/stopVideo")
 def stop_video():
     try:
         camera.stop()

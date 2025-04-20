@@ -6,8 +6,6 @@ import logging
 import  math
 
 
-chassis = mecanum.MecanumChassis()
-
 control_bp = Blueprint('control', __name__)
 logger = logging.getLogger(__name__)
 

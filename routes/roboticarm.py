@@ -9,10 +9,6 @@ import common.yaml_handle as yaml_handle
 board = Board()
 deviation_data = yaml_handle.get_yaml_data(yaml_handle.Deviation_file_path)
 
-if sys.version_info.major == 2:
-    print('Please run this program with python3!')
-    sys.exit(0)
-    
 # 实例化逆运动学库(Instantiate the inverse kinematics library)
 AK = ArmIK()
 AK.board = Board()
