@@ -186,6 +186,7 @@ def Stop(signum, frame):
 
 @avoidacne_bp.route('/avoidance', methods=['POST'])
 def avoidance_handle():
+    global HWSONAR
     init()
     start()
     HWSONAR = Sonar.Sonar()
