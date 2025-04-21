@@ -58,6 +58,7 @@ class CameraStream:
             else:
                 annotated_frame = frame 
 
+            annotated_frame = cv2.resize(annotated_frame, (640, 640))
             _, buffer = cv2.imencode('.jpg', annotated_frame)
             self.latest_frame = buffer.tobytes()
 
