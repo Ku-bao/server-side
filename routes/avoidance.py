@@ -195,6 +195,6 @@ def avoidance_handle():
     while __isRunning:
         run()  
 
-@avoidacne_bp.route('/avoidance_stop', methods=['POST'])
+@avoidacne_bp.route('/stopAvoidance', methods=['POST'])
 def avoidance_stop_handle():
     exit()
